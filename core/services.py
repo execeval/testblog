@@ -1,5 +1,4 @@
 from core import repository
-from core.api.serializers import APIRegisterUserSerializer
 from core.exceptions import PreferenceMissing, LimitMissing
 from core.forms import AccountAuthForm
 from django.core.exceptions import ObjectDoesNotExist
@@ -82,15 +81,6 @@ class LogoutService(ViewService):
     def get_context():
         pref_list = ('logout_message',)
         return _build_pref_context(pref_list)
-
-    def execute(self):
-        return self.get_context()
-
-
-class RegistrationService(ViewService):
-    def get_context(self):
-        serializer = APIRegisterUserSerializer()
-        return {'serializer': serializer}
 
     def execute(self):
         return self.get_context()

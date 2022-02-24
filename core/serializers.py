@@ -1,12 +1,17 @@
 from django.contrib.auth import get_user_model
-from rest_flex_fields import FlexFieldsModelSerializer
-from rest_framework import serializers
-from rest_framework.fields import CurrentUserDefault
-from account.models import Account
-from core.models import Post, PostCategory, PostReaction, PostComment
-from versatileimagefield.serializers import VersatileImageFieldSerializer
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
+
+from rest_framework import serializers
+from rest_framework.fields import CurrentUserDefault
+
+from rest_flex_fields import FlexFieldsModelSerializer
+from versatileimagefield.serializers import VersatileImageFieldSerializer
+
+
+import core.models
+
+Account = get_user_model()
 
 
 class CurrentUserUsernameDefault:
@@ -48,16 +53,16 @@ class PublicAccountSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['id', 'username', 'profile_picture', 'date_joined', 'last_login', 'is_admin', 'is_owner', 'is_staff']
+        fields = ['id', 'username', 'profile_picture', 'date_joined', 'last_login', 'is_admin',  'is_staff']
         expandable_fields = {'profile_picture': ImageSerializer}
 
 
 class MakePostSerializer(FlexFieldsModelSerializer):
     """Сериалайзер для публикации постов"""
-    categories = serializers.PrimaryKeyRelatedField(queryset=PostCategory.objects.all(), many=True)
+    categories = serializers.PrimaryKeyRelatedField(queryset=core.models.Post.objects.all(), many=True)
 
     class Meta:
-        model = Post
+        model = core.models.Post
         fields = ['title', 'content', 'date', 'active', 'categories']
 
     def _get_author(self):
@@ -70,7 +75,7 @@ class MakePostSerializer(FlexFieldsModelSerializer):
 
 class PostCategorySerializer(FlexFieldsModelSerializer):
     class Meta:
-        model = PostCategory
+        model = core.models.PostCategory
         fields = '__all__'
 
 
@@ -80,7 +85,7 @@ class PostSerializer(FlexFieldsModelSerializer):
     categories = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
 
     class Meta:
-        model = Post
+        model = core.models.Post
         fields = ['id', 'author', 'title', 'content', 'date', 'active', 'categories']
         expandable_fields = {'author': PublicAccountSerializer,
                              'categories': (PostCategorySerializer, {'many': True})
@@ -99,22 +104,8 @@ class PrivateAccountSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['id', 'username', 'profile_picture', 'date_joined', 'last_login', 'is_admin', 'is_owner', 'is_staff',
+        fields = ['id', 'username', 'profile_picture', 'date_joined', 'last_login', 'is_admin',  'is_staff',
                   'email', 'is_active']
-        expandable_fields = {'profile_picture': ImageSerializer}
-
-
-class CreateAccountSerializer(FlexFieldsModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    def validate_password(self, value):
-        validate_password(value)
-        return make_password(value)
-
-    class Meta:
-        model = Account
-        fields = ['id', 'username', 'profile_picture', 'image_ppoi', 'email', 'password', 'is_active']
         expandable_fields = {'profile_picture': ImageSerializer}
 
 
@@ -128,7 +119,7 @@ class CreateAccountByOwnerSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['id', 'username', 'profile_picture', 'image_ppoi', 'email', 'is_owner', 'is_staff', 'password',
+        fields = ['id', 'username', 'profile_picture', 'image_ppoi', 'email', 'is_staff', 'password',
                   'is_active']
         expandable_fields = {'profile_picture': ImageSerializer}
 
@@ -137,7 +128,7 @@ class ReactionSerializer(FlexFieldsModelSerializer):
     author = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
-        model = PostReaction
+        model = core.models.PostReaction
         fields = '__all__'
         expandable_fields = {
             'post': PostSerializer,
@@ -146,7 +137,7 @@ class ReactionSerializer(FlexFieldsModelSerializer):
 
 class CommentSerializer(FlexFieldsModelSerializer):
     class Meta:
-        model = PostComment
+        model = core.models.PostComment
         fields = '__all__'
         extra_kwargs = {'author': {'read_only': True}}
         expandable_fields = {
@@ -156,7 +147,7 @@ class CommentSerializer(FlexFieldsModelSerializer):
 
 class ReactionChangeSerializer(FlexFieldsModelSerializer):
     class Meta:
-        model = PostReaction
+        model = core.models.PostReaction
         fields = '__all__'
         extra_kwargs = {'author': {'read_only': True},
                         'post': {'read_only': True}}
@@ -164,7 +155,58 @@ class ReactionChangeSerializer(FlexFieldsModelSerializer):
 
 class CommentChangeSerializer(FlexFieldsModelSerializer):
     class Meta:
-        model = PostComment
+        model = core.models.PostComment
         fields = '__all__'
         extra_kwargs = {'author': {'read_only': True},
                         'post': {'read_only': True}}
+
+
+class CreateAccountSerializer(FlexFieldsModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    def validate_password(self, value):
+        validate_password(value)
+        return make_password(value)
+
+    class Meta:
+        model = Account
+        fields = ['id', 'email', 'username', 'profile_picture', 'image_ppoi', 'password']
+        expandable_fields = {
+            'profile_picture': ImageSerializer}
+
+
+class CreateAccountPrivilegedSerializer(FlexFieldsModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    def validate_password(self, value):
+        validate_password(value)
+        return make_password(value)
+
+    class Meta:
+        model = Account
+        fields = ['id', 'email', 'username', 'profile_picture', 'image_ppoi', 'password', 'is_staff', 'is_active']
+        expandable_fields = {
+            'profile_picture': ImageSerializer}
+
+
+class ReadAccountSerializer(FlexFieldsModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['id', 'username', 'profile_picture', 'image_ppoi',
+                  'date_joined', 'last_login', 'is_admin', 'is_staff']
+        expandable_fields = {'profile_picture': ImageSerializer}
+
+
+class ReadAccountPrivilegedSerializer(FlexFieldsModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['id', 'email', 'username', 'profile_picture', 'image_ppoi',
+                  'date_joined', 'last_login', 'is_admin', 'is_staff', 'is_active']
+        expandable_fields = {'profile_picture': ImageSerializer}
+
+
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=True)

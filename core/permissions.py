@@ -8,7 +8,7 @@ class IsBlogOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return False
 
-        return user and user.is_owner
+        return user and user.is_staff
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -74,8 +74,9 @@ class AccountPermission(permissions.BasePermission):
 
         user = request.user
 
-        if any([user.is_staff, user.is_admin, user.is_owner]):
+        if user.is_staff:
             return True
+
         return obj.username == user.username
 
 
@@ -99,7 +100,7 @@ class PostCategoryPermission(permissions.BasePermission):
 
         user = request.user
 
-        return any([user.is_staff, user.is_admin, user.is_owner])
+        return user.is_staff
 
 
 class PostReactionPermission(permissions.BasePermission):
@@ -132,7 +133,7 @@ class PostCommentPermission(permissions.BasePermission):
 
         user = request.user
 
-        is_user_privileged = any([user.is_staff, user.is_admin, user.is_owner])
+        is_user_privileged = user.is_staff
 
         return is_user_privileged or (obj.author.username == request.user.username)
 
