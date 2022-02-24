@@ -1,0 +1,278 @@
+{% extends "testblog/layout/basic.html" %}
+{% load rest_framework %}
+{% block style %}
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        html, body{
+            height: 100%;
+            width: 100%;
+        }
+        #window{
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .get-posts-button{
+            margin: 10px;
+            padding: 5px 10px;
+            font-size: 16px;
+        }
+
+        .post{
+            width: 750px;
+            padding: 10px;
+            border: solid 1px black;
+            background-color: antiquewhite;
+        }
+        .post-title{
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .post-content{
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .post-author{
+            font-size: 16px;
+        }
+
+        #post-create-continater{
+            width: 500px;
+            margin: 5px;
+            padding: 5px;
+            border: solid 1px black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #post-create-continater.hidden > *:not(.post-create-header){
+            display: none;
+        }
+
+        #post-create-continater > * {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 3px;
+            resize: vertical;
+        }
+
+        .post-create-error{
+            display: none;
+            color: red;
+        }
+        .post-create-error:before{
+            content: attr(data-error)
+        }
+        .post-create-error[data-error]{
+            display: block;
+        }
+
+        #page-number:before{
+            content: 'Номер страницы: '
+        }
+{% endblock %}
+{% block script %}
+        function clearPostEditor(){
+            document.getElementById('post-edit-id-error').removeAttribute('data-error')
+            document.getElementById('post-edit-title-error').removeAttribute('data-error')
+            document.getElementById('post-edit-content-error').removeAttribute('data-error')
+
+            document.getElementById('post-edit-title').value = '';
+            document.getElementById('post-edit-content').value = '';
+            document.getElementById('post-edit-is-active').checked = false;
+            document.getElementById('post-edit-form-container').classList.add('hidden');
+        }
+
+        function findPostForEditor(){
+            var post_id = document.getElementById('post-edit-id').value;
+            if (post_id < 1) return document.getElementById('post-edit-id-error').setAttribute('data-error', 'Укажите валидный id поста!')
+            var response = {
+                author: 'Акаринчик',
+                title: 'Чото-там',
+                content: 'ПАСТАПАС ТАПАСТАПАСТ АПАСТАП АСТАПАСТАПАСТА',
+                date: '2022-02-21T10:37:19.268Z',
+                is_active: true
+            };
+            var http = new XMLHttpRequest();
+            http.open('GET', '/api/posts/' + post_id);
+            http.onreadystatechange = function(){
+                if (http.readyState !== 4) return;
+                var response = JSON.parse(http.responseText)
+                if (response.defail){
+                    document.getElementById('post-edit-id-error').setAttribute('data-error', response.defail)
+                } else {
+                    document.getElementById('post-edit-title').value = response.title
+                    document.getElementById('post-edit-content').value = response.content
+                    document.getElementById('post-edit-is-active').checked = response.is_active
+                    document.getElementById('post-edit-form-container').classList.remove('hidden');
+                }
+            }
+            http.send()
+        }
+
+        function editPost(){
+            var new_post_title = document.getElementById('post-edit-title').value;
+            var new_post_content = document.getElementById('post-edit-content').value;
+            var new_post_is_active = document.getElementById('post-edit-is-active').checked;
+            var post_id = document.getElementById('post-edit-id').value;
+
+            if (!new_post_title) document.getElementById('post-edit-title-error').setAttribute('data-error', 'Это обязательное поле!')
+            if (!new_post_content) document.getElementById('post-edit-content-error').setAttribute('data-error', 'Это обязательное поле!')
+            if (!new_post_title || !new_post_content) return;
+
+            var http = new XMLHttpRequest();
+            http.open('PUT', '/api/posts' + post_id);
+            http.onreadystatechange = function(){
+                if (http.readyState !== 4) return;
+                var response = JSON.parse(http.responseText)
+                if (response.detail){
+                    document.getElementById('post-edit-title-error').setAttribute('data-error', response.detail)
+                } else clearPostEditor()
+            }
+            http.send(JSON.stringify({
+                is_active: new_post_is_active,
+                title: new_post_title,
+                content: new_post_is_active,
+            }))
+        }
+
+        function deletePost(){
+            var post_id = document.getElementById('post-edit-id').value;
+
+            var http = new XMLHttpRequest();
+            http.open('DELETE', '/api/posts' + post_id);
+            http.onreadystatechange = function(){
+                if (http.readyState !== 4) return;
+                var response = JSON.parse(http.responseText)
+                if (response.detail){
+                    document.getElementById('post-edit-title-error').setAttribute('data-error', response.detail)
+                } else clearPostEditor()
+
+            }
+            http.send('{}')
+        }
+
+        function clearPostCreateErrors(){
+            document.getElementById('post-create-title-error').removeAttribute('data-error')
+            document.getElementById('post-create-content-error').removeAttribute('data-error')
+        }
+        function createPost(){
+            var post_title = document.getElementById('post-create-title').value;
+            var post_content = document.getElementById('post-create-content').value;
+
+            if (!post_title) document.getElementById('post-create-title-error').setAttribute('data-error', 'Это обязательное поле!')
+            if (!post_content) document.getElementById('post-create-content-error').setAttribute('data-error', 'Это обязательное поле!')
+            if (!post_title || !post_content) return;
+
+            var http = new XMLHttpRequest();
+            http.open('POST', '/api/posts');
+            http.onreadystatechange = function(){
+                if (http.readyState !== 4) return;
+                var response = JSON.parse(http.responseText)
+                if (response.title){
+                    document.getElementById('post-create-title-error').setAttribute('data-error', response.title)
+                }
+                if (response.content){
+                    document.getElementById('post-create-content-error').setAttribute('data-error', response.content)
+                }
+            }
+            http.send(JSON.stringify({
+                is_active: document.getElementById('post-create-is-active').checked,
+                title: post_title,
+                content: post_content
+            }))
+        }
+
+        function getPosts(page_number){
+            if (!page_number || page_number < 0) page_number = 1;
+            if (true){
+                var http = new XMLHttpRequest();
+                http.open('GET', '/api/posts?limit=5&offset=' + ((page_number - 1) * 5));
+                http.onreadystatechange = function(){
+                    if (http.readyState !== 4) return;
+                    var result_html = '';
+                    for (var post of JSON.parse(http.responseText)){
+                        result_html += `
+                        <div class="post">
+                            <div class="post-title">${post.title}</div>
+                            <div class="post-content">${post.content}</div>
+                            <i><span class="post-author">${post.author}</span> в <span class="post-date">${(new Date(post.date).toLocaleString())}</span></i>
+                        </div>`
+                    }
+                    document.getElementById('post-container').innerHTML = result_html;
+                    document.getElementById('page-number').textContent = page_number
+                }
+                http.send();
+            } else {
+                var response_posts = [
+                    {
+                        author: 'Акаринчик',
+                        title: 'Чото-там',
+                        content: 'ПАСТАПАС ТАПАСТАПАСТ АПАСТАП АСТАПАСТАПАСТА',
+                        date: '2022-02-21T10:37:19.268Z'
+                    },
+                    {
+                        author: 'Акаринчик',
+                        title: 'Чото-там',
+                        content: 'ПАСТ АПАСТАПА СТАПАСТАПАСТА ПАСТАПАСТ АПАСТА',
+                        date: '2022-02-21T10:37:19.268Z'
+                    },
+                    {
+                        author: 'Акаринчик',
+                        title: 'Чото-там',
+                        content: 'ПАСТАПА СТАПАСТАП АСТАПАСТАП АСТАПАСТАПАСТА',
+                        date: '2022-02-21T10:37:19.268Z'
+                    },
+                    {
+                        author: 'Акаринчик',
+                        title: 'Чото-там',
+                        content: 'ПАСТАПА СТАПАСТА ПАСТАПАСТАП АСТАПАСТАПАСТА',
+                        date: '2022-02-21T10:37:19.268Z'
+                    },
+                ];
+                var result_html = '';
+                for (var post of response_posts){
+                    result_html += `
+                    <div class="post" data-post-id="${post.id}">
+                        <div class="post-title">${post.title}</div>
+                        <div class="post-content">${post.content}</div>
+                        <i><span class="post-author">${post.author}</span> в <span class="post-date">${(new Date(post.date).toLocaleString())}</span></i>
+                    </div>`
+                }
+                document.getElementById('post-container').innerHTML = result_html;
+                document.getElementById('page-number').textContent = page_number;
+            }
+        }
+{% endblock %}
+{% block content %}
+<h1>Добро пожаловать{% if not is_anonymous %}, {{ username }}{% endif %}</h1>
+    <div id="window">
+        <button class='get-posts-button' onclick="getPosts()">Получить посты</button>
+        <div id="page-number"></div>
+        <div id="post-create-continater" class="hidden">
+            <span class="post-create-header" onclick="this.parentElement.classList.toggle('hidden')">Создать пост...</span>
+
+            <span id="post-create-title-error" class="post-create-error"></span>
+            <input type="text" oninput="clearPostCreateErrors()" placeholder="Введите название поста" id="post-create-title">
+
+            <span id="post-create-content-error" class="post-create-error"></span>
+            <textarea oninput="clearPostCreateErrors()" placeholder="Введите содержание поста" id="post-create-content"></textarea>
+
+            <button onclick="createPost()">Создать пост</button>
+        </div>
+        <div id="post-container"></div>
+        <div id='posts-paginator'>
+            <button onclick="getPosts(1)">1</button>
+            <button onclick="getPosts(2)">2</button>
+            <button onclick="getPosts(3)">3</button>
+            <button onclick="getPosts(4)">4</button>
+        </div>
+    </div>
+{% endblock %}
