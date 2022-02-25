@@ -66,16 +66,18 @@ class PostOnly(permissions.BasePermission):
 class AccountPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        if request.method in ('GET', 'POST', 'OPTIONS', 'HEAD'):
+        if request.method in ('POST', 'OPTIONS', 'HEAD'):
             return True
-
-        if request.user.is_anonymous:
-            return False
 
         user = request.user
 
         if user.is_staff:
             return True
+
+        if request.method == 'GET':
+            return obj.is_active
+        if request.user.is_anonymous:
+            return False
 
         return obj.username == user.username
 
@@ -137,3 +139,10 @@ class PostCommentPermission(permissions.BasePermission):
 
         return is_user_privileged or (obj.author.username == request.user.username)
 
+
+class PostPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user.is_staff

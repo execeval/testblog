@@ -37,7 +37,7 @@ class Post(models.Model):
     content = models.TextField(null=False, blank=False)
 
     date = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-    active = models.BooleanField(null=False, default=True)
+    is_active = models.BooleanField(null=False, default=True)
 
     def __str__(self):
         return f'Post "{self.title}" by {self.author.username} at {self.date.date()}'

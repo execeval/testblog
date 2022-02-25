@@ -1,11 +1,15 @@
 
 from core.api import views
-from core.api.routers import SimpleRouterOptionalSlash, CustomRouter, AccountRouter
+from core.api.routers import SimpleRouterOptionalSlash, PostRouter, AccountRouter, CommentariesReactionsRouter
 
-custom_router = CustomRouter()
-custom_router.register('posts', views.PostViewSet)
-custom_router.register('reactions', views.ReactionsViewSet)
-custom_router.register('comments', views.CommentViewSet)
+posts_router = PostRouter()
+
+posts_router.register('posts', views.PostViewSet)
+
+commentaries_reactions_router = CommentariesReactionsRouter()
+
+commentaries_reactions_router.register('reactions', views.ReactionsViewSet)
+commentaries_reactions_router.register('comments', views.CommentViewSet)
 
 account_router = AccountRouter()
 account_router.register('accounts', views.AccountViewSet)
@@ -17,5 +21,6 @@ urlpatterns = [
 ]
 
 urlpatterns += router.urls
-urlpatterns += custom_router.urls
+urlpatterns += posts_router.urls
 urlpatterns += account_router.urls
+urlpatterns += commentaries_reactions_router.urls

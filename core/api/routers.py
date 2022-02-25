@@ -40,7 +40,31 @@ class AccountRouter(SimpleRouter):
     ]
 
 
-class CustomRouter(SimpleRouter):
+class PostRouter(SimpleRouter):
+
+    def __init__(self):
+        super().__init__()
+        self.trailing_slash = '/?'
+
+    routes = [
+        Route(
+            url=r'^{prefix}{trailing_slash}$',
+            mapping={'get': 'list', 'post': 'create', 'patch': 'full_partial_update'},
+            name='{basename}-list',
+            detail=False,
+            initkwargs={'suffix': 'List'}
+        ),
+        Route(
+            url=r'^{prefix}/{lookup}{trailing_slash}$',
+            mapping={'get': 'retrieve', 'patch': 'partial_update'},
+            name='{basename}-detail',
+            detail=True,
+            initkwargs={'suffix': 'Detail'}
+        ),
+    ]
+
+
+class CommentariesReactionsRouter(SimpleRouter):
 
     def __init__(self):
         super().__init__()
@@ -56,12 +80,13 @@ class CustomRouter(SimpleRouter):
         ),
         Route(
             url=r'^{prefix}/{lookup}{trailing_slash}$',
-            mapping={'get': 'retrieve', 'delete': 'destroy', 'put': 'partial_update'},
+            mapping={'get': 'retrieve', 'delete': 'destroy', 'patch': 'partial_update'},
             name='{basename}-detail',
             detail=True,
             initkwargs={'suffix': 'Detail'}
         ),
     ]
+
 
 
 class SimpleRouterOptionalSlash(SimpleRouter):
