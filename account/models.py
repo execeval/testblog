@@ -44,10 +44,8 @@ class Account(AbstractBaseUser):
     profile_picture = VersatileImageField(
         'Image',
         upload_to='images',
-        ppoi_field='image_ppoi',
         null=True,
     )
-    image_ppoi = PPOIField()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

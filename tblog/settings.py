@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +26,7 @@ SECRET_KEY = 'django-insecure-qe7)+gt5p5z!&7h$6l%2p2#wv7#&p7(5jmy!ro9gg%-rn9bzm2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['testserver', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -56,6 +58,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'core.urls'
 
+
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -77,16 +82,20 @@ WSGI_APPLICATION = 'tblog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'tblog_db',
-        'USER': 'testblog_user',
-        'PASSWORD': 'qweqweasds',
-        'HOST': 'localhost',
-        'PORT': 5432
-    }
-}
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'tblog_db',
+#        'USER': 'testblog_user',
+#       'PASSWORD': 'qweqweasds',
+#        'HOST': 'localhost',
+#        'PORT': 5432
+#    }
+#}
+DATABASES = {}
+
+db_from_env = dj_database_url.config()
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

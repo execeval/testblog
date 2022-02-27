@@ -26,11 +26,23 @@ class AccountViewSet(ModelViewSet):
     serializer_class = core.serializers.account.ReadAccountSerializer
     queryset = Account.objects.order_by('-date_joined')
     filter_backend = [DjangoFilterBackend]
-    filter_fields = ['username', 'email', 'is_active', 'is_admin', 'is_staff']
+    filter_fields = ('username', 'email', 'is_active', 'is_admin', 'is_staff')
     permission_classes = [core.permissions.AccountPermission]
 
+    def is_self_lookup(self):
+        return self.kwargs.get(self.lookup_field) == 'me'
+
     def filter_queryset(self, queryset):
+        user = self.request.user
+        if user.is_anonymous or not user.is_staff:
+            queryset = queryset.filter(is_active=True)
         queryset = limit_filter(self.request, queryset)
+        has_profile_picture_kwarg = self.request.GET.get('has_profile_picture', None)
+        if isinstance(has_profile_picture_kwarg, str):
+            if has_profile_picture_kwarg.lower() == 'true':
+                queryset = queryset.exclude(profile_picture='')
+            elif has_profile_picture_kwarg.lower() == 'false':
+                queryset = queryset.filter(profile_picture='')
 
         return super().filter_queryset(queryset)
 
@@ -70,10 +82,16 @@ class AccountViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def perform_create(self, serializer):
-        login(self.request, serializer.save())
+        user = serializer.save()
+        login(self.request, user)
+
+    def perform_update(self, serializer):
+        user = serializer.save()
+        if self.is_self_lookup():
+            login(self.request, user)
 
     def get_object(self):
-        if self.kwargs[self.lookup_field] == 'me':
+        if self.is_self_lookup():
             user = self.request.user
             if user.is_anonymous:
                 self.permission_denied(self.request)

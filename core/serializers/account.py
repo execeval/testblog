@@ -26,7 +26,7 @@ class AuthorExpandedSerializer(FlexFieldsModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
-        if not data['is_active']:
+        if isinstance(instance, Account) and data.get('is_active') is False:
             data = {'id': data['id'], 'is_active': False}
 
         return data
@@ -42,7 +42,7 @@ class CreateAccountSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['id', 'email', 'username', 'profile_picture', 'image_ppoi', 'password']
+        fields = ['id', 'email', 'username', 'profile_picture', 'password', 'is_active']
         expandable_fields = {
             'profile_picture': ImageSerializer}
 
@@ -57,7 +57,7 @@ class CreateAccountPrivilegedSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['id', 'email', 'username', 'profile_picture', 'image_ppoi', 'password', 'is_staff', 'is_active']
+        fields = ['id', 'email', 'username', 'profile_picture',  'password', 'is_staff', 'is_active']
         expandable_fields = {
             'profile_picture': ImageSerializer}
 
@@ -65,7 +65,7 @@ class CreateAccountPrivilegedSerializer(FlexFieldsModelSerializer):
 class ReadAccountSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Account
-        fields = ['id', 'username', 'profile_picture', 'image_ppoi',
+        fields = ['id', 'username', 'profile_picture',
                   'date_joined', 'last_login', 'is_admin', 'is_staff']
         expandable_fields = {'profile_picture': ImageSerializer}
 
@@ -73,7 +73,7 @@ class ReadAccountSerializer(FlexFieldsModelSerializer):
 class ReadAccountPrivilegedSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Account
-        fields = ['id', 'email', 'username', 'profile_picture', 'image_ppoi',
+        fields = ['id', 'email', 'username', 'profile_picture',
                   'date_joined', 'last_login', 'is_admin', 'is_staff', 'is_active']
         expandable_fields = {'profile_picture': ImageSerializer}
 
