@@ -1,1 +1,1 @@
-web: gunicorn testblog-app.wsgi --log-file - --capture-output
+web: gunicorn tblog.wsgi --log-file - --capture-output
