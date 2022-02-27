@@ -58,9 +58,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'core.urls'
 
-
-
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -82,16 +79,7 @@ WSGI_APPLICATION = 'tblog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': 'tblog_db',
-#        'USER': 'testblog_user',
-#       'PASSWORD': 'qweqweasds',
-#        'HOST': 'localhost',
-#        'PORT': 5432
-#    }
-#}
+
 DATABASES = dict()
 
 db_from_env = dj_database_url.config()
@@ -129,7 +117,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/static/'
 STATIC_ROOT = STATIC_URL
 
 # Default primary key field type
