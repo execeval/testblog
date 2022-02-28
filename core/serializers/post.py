@@ -7,6 +7,7 @@ from core.serializers.account import AuthorExpandedSerializer
 from core.serializers.category import PostCategorySerializer
 from core.models import Post
 
+
 class PostSerializer(FlexFieldsModelSerializer):
     """Сериалайзер для чтения постов"""
     author = serializers.PrimaryKeyRelatedField(read_only=True)

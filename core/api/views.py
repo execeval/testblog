@@ -37,12 +37,6 @@ class AccountViewSet(ModelViewSet):
         if user.is_anonymous or not user.is_staff:
             queryset = queryset.filter(is_active=True)
         queryset = limit_filter(self.request, queryset)
-        has_profile_picture_kwarg = self.request.GET.get('has_profile_picture', None)
-        if isinstance(has_profile_picture_kwarg, str):
-            if has_profile_picture_kwarg.lower() == 'true':
-                queryset = queryset.exclude(profile_picture='')
-            elif has_profile_picture_kwarg.lower() == 'false':
-                queryset = queryset.filter(profile_picture='')
 
         return super().filter_queryset(queryset)
 

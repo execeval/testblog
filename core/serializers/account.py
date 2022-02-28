@@ -1,27 +1,15 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from rest_flex_fields import FlexFieldsModelSerializer
-from versatileimagefield.serializers import VersatileImageFieldSerializer
 
 from account.models import Account
 from rest_framework import serializers
 
 
-class ImageSerializer(VersatileImageFieldSerializer):
-    def __init__(self, *args, **kwargs):
-        sizes = [
-            ('full_size', 'url'),
-            ('medium_square_crop', 'crop__400x400'),
-            ('small_square_crop', 'crop__200x200')
-        ]
-        super().__init__(sizes, *args, **kwargs)
-
-
 class AuthorExpandedSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Account
-        fields = ['id', 'username', 'profile_picture', 'date_joined', 'last_login', 'is_admin', 'is_staff', 'is_active']
-        expandable_fields = {'profile_picture': ImageSerializer}
+        fields = ['id', 'username', 'date_joined', 'last_login', 'is_admin', 'is_staff', 'is_active']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -42,9 +30,7 @@ class CreateAccountSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['id', 'email', 'username', 'profile_picture', 'password', 'is_active']
-        expandable_fields = {
-            'profile_picture': ImageSerializer}
+        fields = ['id', 'email', 'username', 'password', 'is_active']
 
 
 class CreateAccountPrivilegedSerializer(FlexFieldsModelSerializer):
@@ -57,25 +43,21 @@ class CreateAccountPrivilegedSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['id', 'email', 'username', 'profile_picture',  'password', 'is_staff', 'is_active']
-        expandable_fields = {
-            'profile_picture': ImageSerializer}
+        fields = ['id', 'email', 'username', 'password', 'is_staff', 'is_active']
 
 
 class ReadAccountSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Account
-        fields = ['id', 'username', 'profile_picture',
+        fields = ['id', 'username',
                   'date_joined', 'last_login', 'is_admin', 'is_staff']
-        expandable_fields = {'profile_picture': ImageSerializer}
 
 
 class ReadAccountPrivilegedSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Account
-        fields = ['id', 'email', 'username', 'profile_picture',
+        fields = ['id', 'email', 'username',
                   'date_joined', 'last_login', 'is_admin', 'is_staff', 'is_active']
-        expandable_fields = {'profile_picture': ImageSerializer}
 
 
 class UserLoginSerializer(serializers.Serializer):

@@ -41,11 +41,6 @@ class Account(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    profile_picture = VersatileImageField(
-        'Image',
-        upload_to='images',
-        null=True,
-    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
