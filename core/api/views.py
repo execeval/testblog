@@ -125,9 +125,11 @@ class AccountViewSet(ModelViewSet):
 
 
 class PostViewSet(ModelViewSet):
+    class NumberFilterInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+        pass
 
     class PostFilter(django_filters.FilterSet):
-        categories = django_filters.AllValuesFilter(field_name='categories', lookup_expr='__in')
+        categories = django_filters.NumberFilterInFilter(field_name='categories', lookup_expr='in')
 
         class Meta:
             model = core.models.Post
