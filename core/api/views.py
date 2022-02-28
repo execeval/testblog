@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from account.models import Account
+from core.api import utils
 
 from core.api.utils import limit_filter
 
@@ -125,11 +126,8 @@ class AccountViewSet(ModelViewSet):
 
 
 class PostViewSet(ModelViewSet):
-    class NumberFilterInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
-        pass
-
     class PostFilter(django_filters.FilterSet):
-        categories = django_filters.NumberFilterInFilter(field_name='categories', lookup_expr='in')
+        categories = utils.NumberFilterInFilter(field_name='categories', lookup_expr='in')
 
         class Meta:
             model = core.models.Post

@@ -1,3 +1,5 @@
+import django_filters
+
 from core.serializers.utils import LimitOffsetSerializer
 
 
@@ -21,3 +23,6 @@ def limit_filter(request, queryset):
         end = offset + limit
 
     return queryset[start:end]
+
+class NumberFilterInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+    pass
