@@ -1,9 +1,0 @@
-{% extends "testblog/layout/basic.html" %}
-
-{% block content %}
-    <form action="{% url 'post_url_login' %}" method="POST">
-        {% csrf_token %}
-        {{ login_form }}
-        <input type="submit" value="ОК">
-    </form>
-{% endblock %}
