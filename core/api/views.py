@@ -148,7 +148,7 @@ class PostViewSet(ModelViewSet):
     serializer_class = core.serializers.post.PostSerializer
     queryset = core.models.Post.objects.order_by('-date')
     filter_backend = [DjangoFilterBackend]
-    filter_fields = []
+    filter_class = PostFilter
     permission_classes = [core.permissions.PostPermission]
 
     def full_partial_update(self, request):
