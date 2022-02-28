@@ -138,7 +138,7 @@ class PostViewSet(ModelViewSet):
                     qs = qs.filter(labels=v)
                 return qs
 
-        categories = M2MFilter(name='categories')
+        categories = M2MFilter(field_name='categories')
 
         class Meta:
             model = core.models.Post
