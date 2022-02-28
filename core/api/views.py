@@ -1,4 +1,5 @@
 import django_filters
+from rest_framework.filters import SearchFilter
 
 import core.serializers.account
 import core.serializers.category
@@ -20,6 +21,7 @@ from account.models import Account
 from core.api import utils
 
 from core.api.utils import limit_filter
+from core.serializers.utils import CategoryNameSerializer
 
 UserModel = get_user_model()
 
@@ -126,18 +128,13 @@ class AccountViewSet(ModelViewSet):
 
 
 class PostViewSet(ModelViewSet):
-    class PostFilter(django_filters.FilterSet):
-        categories__in = utils.CharFilterInFilter(field_name='categories__name', lookup_expr='in')
-
-        class Meta:
-            model = core.models.Post
-            fields = ('title', 'is_active', 'categories__in', 'author__username', 'author', 'date')
 
     lookup_field = 'id'
     serializer_class = core.serializers.post.PostSerializer
     queryset = core.models.Post.objects.order_by('-date')
-    filter_backend = [DjangoFilterBackend]
-    filter_class = PostFilter
+    filter_backend = [DjangoFilterBackend, SearchFilter]
+    filter_fields = ('title', 'is_active', 'author__username', 'author', 'date')
+    search_fields = ('categories__name',)
     permission_classes = [core.permissions.PostPermission]
 
     def full_partial_update(self, request):
