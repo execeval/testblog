@@ -1,6 +1,3 @@
-import django_filters
-from rest_framework.filters import SearchFilter
-
 import core.serializers.account
 import core.serializers.category
 import core.serializers.comment
@@ -130,8 +127,7 @@ class PostViewSet(ModelViewSet):
     lookup_field = 'id'
     serializer_class = core.serializers.post.PostSerializer
     queryset = core.models.Post.objects.order_by('-date')
-    filter_backend = [DjangoFilterBackend, SearchFilter]
-    search_fields = ('=categories__name',)
+    filter_backend = [DjangoFilterBackend]
     filter_fields = ('title', 'is_active', 'author__username', 'author', 'date')
     permission_classes = [core.permissions.PostPermission]
 
