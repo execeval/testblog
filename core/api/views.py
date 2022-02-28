@@ -131,7 +131,7 @@ class PostViewSet(ModelViewSet):
 
         class Meta:
             model = core.models.Post
-            fields = ('title', 'is_active', 'categories_in', 'author__username', 'author', 'date')
+            fields = ('title', 'is_active', 'categories__in', 'author__username', 'author', 'date')
 
     lookup_field = 'id'
     serializer_class = core.serializers.post.PostSerializer
