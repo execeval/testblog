@@ -1,3 +1,5 @@
+import django_filters
+
 import core.serializers.account
 import core.serializers.category
 import core.serializers.comment
@@ -123,11 +125,30 @@ class AccountViewSet(ModelViewSet):
 
 
 class PostViewSet(ModelViewSet):
+
+    class PostFilter(django_filters.FilterSet):
+        class M2MFilter(django_filters.Filter):
+
+            def filter(self, qs, value):
+                if not value:
+                    return qs
+
+                values = value.split(',')
+                for v in values:
+                    qs = qs.filter(labels=v)
+                return qs
+
+        categories = M2MFilter(name='categories')
+
+        class Meta:
+            model = core.models.Post
+            fields = ('title', 'is_active', 'categories', 'author__username', 'author', 'date')
+
     lookup_field = 'id'
     serializer_class = core.serializers.post.PostSerializer
     queryset = core.models.Post.objects.order_by('-date')
     filter_backend = [DjangoFilterBackend]
-    filter_fields = ['title', 'is_active', 'categories__in', 'author__username', 'author', 'date']
+    filter_fields = []
     permission_classes = [core.permissions.PostPermission]
 
     def full_partial_update(self, request):
