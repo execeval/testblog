@@ -127,18 +127,7 @@ class AccountViewSet(ModelViewSet):
 class PostViewSet(ModelViewSet):
 
     class PostFilter(django_filters.FilterSet):
-        class M2MFilter(django_filters.Filter):
-
-            def filter(self, qs, value):
-                if not value:
-                    return qs
-
-                values = value.split(',')
-                for v in values:
-                    qs = qs.filter(labels=v)
-                return qs
-
-        categories = M2MFilter(field_name='categories')
+        categories = django_filters.AllValuesFilter(field_name='categories', lookup_expr='__in')
 
         class Meta:
             model = core.models.Post
