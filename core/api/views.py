@@ -127,11 +127,11 @@ class AccountViewSet(ModelViewSet):
 
 class PostViewSet(ModelViewSet):
     class PostFilter(django_filters.FilterSet):
-        categories = utils.NumberFilterInFilter(field_name='categories', lookup_expr='in')
+        categories__in = utils.CharFilterInFilter(field_name='categories__name', lookup_expr='in')
 
         class Meta:
             model = core.models.Post
-            fields = ('title', 'is_active', 'categories', 'author__username', 'author', 'date')
+            fields = ('title', 'is_active', 'categories_in', 'author__username', 'author', 'date')
 
     lookup_field = 'id'
     serializer_class = core.serializers.post.PostSerializer

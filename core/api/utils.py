@@ -24,5 +24,5 @@ def limit_filter(request, queryset):
 
     return queryset[start:end]
 
-class NumberFilterInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+class CharFilterInFilter(django_filters.BaseInFilter, django_filters.CharFilter):
     pass
