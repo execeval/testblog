@@ -31,7 +31,7 @@ class PostCategory(models.Model):
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
     author = models.ForeignKey(UserModel, on_delete=models.PROTECT, null=False, blank=False)
-    categories = models.ManyToManyField(PostCategory)
+    categories = models.ManyToManyField(PostCategory, blank=True, default=[])
 
     title = models.CharField(null=False, blank=False, max_length=200)
     content = models.TextField(null=False, blank=False)
