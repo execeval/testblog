@@ -18,10 +18,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from account.models import Account
-from core.api import utils
 
 from core.api.utils import limit_filter
-from core.serializers.utils import CategoryNameSerializer
 
 UserModel = get_user_model()
 
