@@ -17,6 +17,7 @@ from rest_framework.viewsets import ModelViewSet
 from account.models import Account
 
 from core.api.utils import limit_filter
+from core.api import filter_sets
 
 UserModel = get_user_model()
 
@@ -122,7 +123,7 @@ class PostViewSet(ModelViewSet):
     serializer_class = core.serializers.post.PostSerializer
     queryset = core.models.Post.objects.order_by('-date')
     filter_backend = [DjangoFilterBackend]
-    filter_fields = ('title', 'is_active', 'author__username', 'author', 'date')
+    filter_class = filter_sets.PostFilter
     permission_classes = [core.permissions.PostPermission]
 
     def full_partial_update(self, request):
